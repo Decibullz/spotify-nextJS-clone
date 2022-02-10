@@ -15,7 +15,6 @@ function Song({ order, track }) {
       uris: [track.track.uri],
     })
   }
-  console.log(track)
   return (
     <div
       onClick={playSong}

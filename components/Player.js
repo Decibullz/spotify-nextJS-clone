@@ -14,6 +14,8 @@ import { useRecoilState } from 'recoil'
 import { currentTrackIdState, isPlayingState } from '../atoms/songAtom'
 import useSongInfo from '../hooks/useSongInfo'
 import useSpotify from '../hooks/useSpotify'
+import { useCallback } from 'react'
+import { debounce } from 'lodash'
 
 function Player() {
   const spotifyApi = useSpotify()
@@ -56,6 +58,19 @@ function Player() {
     }
   }, [currentTrackIdState, spotifyApi, session])
 
+  useEffect(() => {
+    if (volume > 0 && volume < 100) {
+      debouncedAdjustVolume(volume)
+    }
+  }, [volume])
+
+  const debouncedAdjustVolume = useCallback(
+    debounce((volume) => {
+      spotifyApi.setVolume(volume).catch((err) => {})
+    }, 250),
+    []
+  )
+
   return (
     <div className="grid h-24 grid-cols-3 bg-gradient-to-b from-black to-gray-900 px-2 text-xs text-white md:px-8 md:text-base">
       {/* left */}
@@ -87,6 +102,25 @@ function Player() {
           className="button"
         />
         <ReplyIcon className="button" />
+      </div>
+      {/* right */}
+      <div className="flex items-center justify-end space-x-3 pr-5 md:space-x-4">
+        <VolumeDownIcon
+          onClick={() => volume > 0 && setVolume(volume - 10)}
+          className="button"
+        />
+        <input
+          className="w-14 md:w-28"
+          type="range"
+          value={volume}
+          min={0}
+          max={100}
+          onChange={(e) => setVolume(Number(e.target.value))}
+        />
+        <VolumeUpIcon
+          onClick={() => volume < 100 && setVolume(volume + 10)}
+          className="button"
+        />
       </div>
     </div>
   )

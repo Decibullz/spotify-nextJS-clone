@@ -8,11 +8,15 @@ export async function middleware(req) {
   //    allow req if folling is true
   //  token exists
   if (token && pathname === '/login') {
-    return NextResponse.redirect('/')
+    const url = req.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.rewrite(url)
   }
   if (pathname.includes('/api/auth') || token) return NextResponse.next()
 
   if (!token && pathname !== '/login') {
-    return NextResponse.redirect('/login')
+    const url = req.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.rewrite(url)
   }
 }
